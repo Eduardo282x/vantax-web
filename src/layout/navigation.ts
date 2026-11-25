@@ -269,9 +269,18 @@ export function isPathActive(
 }
 
 export function findAreaByPath(pathname: string): NavigationArea | null {
-  return (
-    navigationAreas.find((area) => isPathActive(pathname, area.to)) ?? null
+  const directArea = navigationAreas.find((area) =>
+    isPathActive(pathname, area.to),
   )
+
+  if (directArea) {
+    return directArea
+  }
+
+  // Un ítem puede apuntar fuera de `area.to` (por ejemplo /productos dentro
+  // de Inventario o /clientes dentro de Ventas). En ese caso el dock conserva
+  // las secciones del área que lo contiene.
+  return findItemByPath(pathname)?.area ?? null
 }
 
 export function findItemByPath(

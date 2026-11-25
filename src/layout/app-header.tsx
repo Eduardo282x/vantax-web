@@ -45,10 +45,10 @@ export function AppHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 shadow-soft backdrop-blur-xl">
-      <div className="flex items-center justify-between min-h-16 w-full px-4 py-2 md:h-18.5 md:px-6">
+      <div className="flex min-h-16 w-full items-center justify-between gap-2 overflow-x-auto px-4 py-2 md:h-18.5 md:px-6">
         <NavLink
           to="/inicio"
-          className="group/brand flex items-center gap-2.5 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="group/brand flex shrink-0 items-center gap-2.5 rounded-lg outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
           aria-label="Ir al inicio"
         >
           <span className="grid size-9 place-items-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-glow-sm ring-1 ring-primary-foreground/20 transition-shadow duration-300 group-hover/brand:shadow-glow">
@@ -77,7 +77,7 @@ export function AppHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex shrink-0 items-center gap-1.5">
           <DollarRate variant="header" className="mr-1" />
 
           <Button

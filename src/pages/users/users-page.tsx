@@ -33,8 +33,6 @@ const dateFormatter = new Intl.DateTimeFormat('es', {
   year: 'numeric',
 })
 
-const isMockMode = import.meta.env.VITE_USE_MOCKS === 'true'
-
 function getInitials(name: string, lastName: string) {
   return `${name.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
 }
@@ -144,7 +142,7 @@ export function UsersPage() {
   }
 
   return (
-    <div className="h-[calc(100svh-11rem)] min-h-140">
+    <div className="h-full min-h-140">
       <PageTransition toggle={formOpen}>
         <div className="space-y-6 p-1">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -153,9 +151,6 @@ export function UsersPage() {
                 <h1 className="font-heading text-2xl font-semibold tracking-tight">
                   Usuarios
                 </h1>
-                {isMockMode && (
-                  <Badge variant="outline">Datos demo</Badge>
-                )}
               </div>
               <p className="text-sm text-muted-foreground">
                 Administra el equipo y los roles con acceso al sistema.

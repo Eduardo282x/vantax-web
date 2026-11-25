@@ -24,11 +24,6 @@ async function loadSales() {
   return { Component: SalesPage }
 }
 
-async function loadSettings() {
-  const { SettingsPage } = await import('@/pages/settings/settings-page')
-  return { Component: SettingsPage }
-}
-
 export const appRouter = createBrowserRouter([
   {
     element: <AppLayout />,
@@ -86,33 +81,13 @@ export const appRouter = createBrowserRouter([
         lazy: loadPlaceholder,
       },
       {
-        path: 'configuracion',
-        lazy: loadSettings,
-      },
-      {
-        path: 'configuracion/datos',
-        lazy: loadPlaceholder,
-      },
-      {
         path: 'dashboard',
         element: <Navigate to="/inicio" replace />,
       },
       {
         path: 'users',
         element: <Navigate to="/usuarios" replace />,
-      },
-      {
-        path: 'configuracion/usuarios',
-        element: <Navigate to="/usuarios" replace />,
-      },
-      {
-        path: 'configuracion/roles',
-        element: <Navigate to="/usuarios/roles" replace />,
-      },
-      {
-        path: 'settings',
-        element: <Navigate to="/configuracion" replace />,
-      },
+      }
     ],
   },
   {

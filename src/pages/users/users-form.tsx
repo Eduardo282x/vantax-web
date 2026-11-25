@@ -84,9 +84,7 @@ export function UsersForm({ user, onSuccess, onCancel }: UsersFormProps) {
       label: 'Usuario',
       type: 'text',
       placeholder: 'atorres',
-      autoComplete: 'username',
       description: 'Se usará para iniciar sesión en el sistema.',
-      suggestions: ['atorres', 'jlopez', 'mramirez'],
       required: true,
     },
     {

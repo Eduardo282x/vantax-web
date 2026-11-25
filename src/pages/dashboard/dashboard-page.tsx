@@ -8,7 +8,6 @@ import {
   FiUsers,
 } from 'react-icons/fi'
 
-import { DollarRate } from '@/components/dollar-rate/dollar-rate'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -90,12 +89,6 @@ const activity = [
     variant: 'outline',
   },
 ] as const
-
-const inventory = [
-  { name: 'Café 500g', stock: 8, total: 50 },
-  { name: 'Harina de maíz', stock: 34, total: 60 },
-  { name: 'Aceite 1L', stock: 45, total: 50 },
-]
 
 export function DashboardPage() {
   const ref = useMagnetic<HTMLDivElement>({ maxOffset: 2, strength: 0.15 })
