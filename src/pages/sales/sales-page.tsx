@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 export function SalesPage() {
   return (
     <div className="space-y-6">
-      <div>
+      <div className="border-l-2 border-primary/70 pl-3">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
           Ventas
         </h1>
@@ -16,8 +16,8 @@ export function SalesPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed bg-card/50 p-8 text-center">
-          <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+        <div className="glass-panel flex min-h-[360px] flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-primary/25 p-8 text-center shadow-card">
+          <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary shadow-glow-sm ring-1 ring-primary/20">
             <FiShoppingCart className="size-7" />
           </div>
           <div className="space-y-2">

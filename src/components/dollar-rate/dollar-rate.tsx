@@ -32,7 +32,7 @@ const dateFormatter = new Intl.DateTimeFormat('es', {
 })
 
 function formatRate(value: number) {
-  return `Bs. ${rateFormatter.format(value)}`
+  return `${rateFormatter.format(value)} Bs. `
 }
 
 function formatChange(value: number) {
@@ -88,16 +88,16 @@ export function DollarRate({
     return (
       <div
         className={cn(
-          'inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-border/80 bg-card px-3',
+          'glass-panel inline-flex h-9 shrink-0 items-center gap-2 rounded-full border border-glass-border px-3 shadow-soft',
           className,
         )}
         title={title}
         aria-label={title}
       >
         <FiDollarSign className="size-4 shrink-0 text-primary" />
-        <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+        {/* <span className="text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
           USD
-        </span>
+        </span> */}
 
         {isLoading ? (
           <Skeleton className="h-3 w-16" />

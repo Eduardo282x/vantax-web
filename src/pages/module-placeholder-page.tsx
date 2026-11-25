@@ -16,8 +16,8 @@ export function ModulePlaceholderPage() {
   const moduleName = area?.label.toLowerCase() ?? 'gestión'
 
   return (
-    <div className="flex min-h-[60svh] flex-col items-center justify-center gap-5 rounded-2xl border border-dashed bg-card/50 p-8 text-center">
-      <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary">
+    <div className="glass-panel flex min-h-[60svh] flex-col items-center justify-center gap-5 rounded-2xl border border-dashed border-primary/25 p-8 text-center shadow-card">
+      <div className="grid size-14 place-items-center rounded-2xl bg-primary/10 text-primary shadow-glow-sm ring-1 ring-primary/20">
         <Icon className="size-7" />
       </div>
 

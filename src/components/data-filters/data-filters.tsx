@@ -128,7 +128,7 @@ function MultiSelectFilter({
           role="listbox"
           aria-multiselectable="true"
           aria-label={filter.label}
-          className="absolute z-50 mt-1 max-h-64 w-full min-w-56 overflow-y-auto rounded-xl border border-border bg-popover p-1.5 shadow-lg"
+          className="absolute z-50 mt-1 max-h-64 w-full min-w-56 overflow-y-auto rounded-xl border border-border bg-popover/90 p-1.5 shadow-card-hover backdrop-blur-xl"
         >
           {filter.options.map((option) => {
             const checked = value.includes(option.value)
@@ -251,7 +251,7 @@ export function DataFilters({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-end gap-3 rounded-xl border border-border/80 bg-card p-3',
+        'glass-panel flex flex-wrap items-end gap-3 rounded-xl border border-glass-border p-3 shadow-card',
         className,
       )}
     >

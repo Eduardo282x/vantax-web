@@ -190,12 +190,13 @@ La paleta azul ya está aplicada en `src/index.css` para `:root` y `.dark`. Cons
 | `--primary` | `#2563EB` | `oklch(0.5461 0.2152 262.88)` | Acción principal, área activa, enlaces y foco. |
 | `--primary-foreground` | `#FFFFFF` | `oklch(1 0 0)` | Texto sobre primario. |
 | `--primary-hover` (nuevo) | `#1D4ED8` | `oklch(0.4882 0.2172 264.38)` | Hover; exponlo como `--color-primary-hover` en `@theme inline` o usa `hover:bg-primary/80`. |
-| `--secondary` / `--accent` | `#EFF6FF` | `oklch(0.9705 0.0142 254.60)` | Fondos suaves, hover y selección. |
-| `--background` | `#F8FAFC` | `oklch(0.9842 0.0034 247.86)` | Fondo de la app. |
-| `--card` / `--popover` | `#FFFFFF` | `oklch(1 0 0)` | Superficies. |
+| `--secondary` / `--accent` | `#E3EFFE` | `oklch(0.9475 0.0242 254.60)` | Fondos suaves, hover y selección. |
+| `--primary-soft` (nuevo) | `#E9F2FE` | `oklch(0.9585 0.0185 254.60)` | Chips, iconos y superficies teñidas de azul. |
+| `--background` | `#ECF0F4` | `oklch(0.953 0.0072 252.5)` | Fondo gris azulado de la app. |
+| `--card` / `--popover` | `#FFFFFF` | `oklch(1 0 0)` | Superficies base del vidrio. |
 | `--foreground` | `#0F172A` | `oklch(0.2077 0.0398 265.75)` | Texto principal. |
-| `--muted-foreground` | `#64748B` | `oklch(0.5544 0.0407 257.42)` | Texto secundario. |
-| `--border` / `--input` | `#E2E8F0` | `oklch(0.9288 0.0126 255.51)` | Bordes y campos. |
+| `--muted-foreground` | `#586476` | `oklch(0.5 0.032 258)` | Texto secundario; mantiene AA sobre el fondo gris (5.2:1). |
+| `--border` / `--input` | `#D9DFE6` / `#E0E6EC` | `oklch(0.9015 0.0115 252.5)` / `oklch(0.9215 0.0105 252.5)` | Bordes y campos. |
 | `--ring` | `#2563EB` | `oklch(0.5461 0.2152 262.88)` | Anillo de foco. |
 | `--sidebar-primary` | `#1E3A8A` | `oklch(0.3791 0.1378 265.52)` | Acento oscuro de marca, si se conserva el token. |
 | `--chart-1` … `--chart-5` | `#2563EB`, `#60A5FA`, `#1E3A8A`, `#93C5FD`, `#BFDBFE` | — | Escala azul para gráficas; sustituye la escala gris actual. |
@@ -203,6 +204,15 @@ La paleta azul ya está aplicada en `src/index.css` para `:root` y `.dark`. Cons
 Para modo oscuro, define valores propios en `.dark` manteniendo contraste AA; no reutilices los fondos claros. Mantén `--destructive` para errores y añade tokens de éxito/advertencia solo si un módulo los necesita.
 
 El tema global es Zustand (`useUiStore`), no `next-themes`. `next-themes` solo aparece en el `sonner.tsx` generado y no hay `ThemeProvider`; no lo introduzcas como sistema de tema.
+
+### Superficies de vidrio, elevación y movimiento
+
+- `Card`, `DataTable`, `DataFilters`, el dock y el header usan `glass-panel` (fondo translúcido + `backdrop-blur`) con `border-glass-border`. No los conviertas en superficies opacas ni retires el blur sin revisar el resultado.
+- La capa `app-aurora` de `AppLayout` es lo que hace visible el vidrio: no la elimines ni la muevas dentro de un contenedor con scroll.
+- Elevación: usa `shadow-soft`, `shadow-card`, `shadow-card-hover`, `shadow-float`, `shadow-glow` o `shadow-glow-sm`. No introduzcas `shadow-sm`/`shadow-lg` sueltos.
+- Movimiento: `--ease-soft` y `--default-transition-duration: 200ms` gobiernan las transiciones; los 500 ms quedan reservados para `PageTransition`. `prefers-reduced-motion` se neutraliza globalmente en `index.css`.
+- Efecto magnético: solo en elementos interactivos (botón primario, enlaces del header y del dock) mediante `useMagnetic` + `magnetic-target`. No lo apliques a cards, filas de tabla ni contenedores que no sean clicables.
+- El azul se reserva para jerarquía: área activa, CTA, foco y acentos. No tiñas superficies completas ni uses azul sólido en bloques grandes de contenido.
 
 ## 8. Navegación principal: Header
 
@@ -325,7 +335,7 @@ import PageTransition from '@/components/transition/PageTransition'
 Comportamiento verificado:
 
 - `toggle = false` muestra la vista principal (primer hijo); `toggle = true` muestra la vista secundaria (segundo hijo).
-- El contenedor interno mide `200%` y cada vista ocupa el `100%` del ancho visible; el cambio se hace con `translate-x` y `transition-transform duration-500 ease-in-out`.
+- El contenedor interno mide `200%` y cada vista ocupa el `100%` del ancho visible; el cambio se hace con `translate-x` y `transition-transform duration-500` con `ease-[cubic-bezier(0.22,1,0.36,1)]`.
 - Ambas vistas permanecen montadas: la principal tiene `overflow-auto`; la secundaria, `overflow-hidden` y debe gestionar su propio scroll.
 - Al montar, un efecto con `requestAnimationFrame` fuerza un rerender de layout para estabilizar el ancho. No lo elimines sin probar el comportamiento visual.
 - En desarrollo advierte si no recibe exactamente 2 hijos.

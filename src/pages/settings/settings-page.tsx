@@ -30,7 +30,7 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="border-l-2 border-primary/70 pl-3">
         <h1 className="font-heading text-2xl font-semibold tracking-tight">
           Ajustes
         </h1>

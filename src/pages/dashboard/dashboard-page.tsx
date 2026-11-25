@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { RevenueChart } from './revenue-chart'
+import { useMagnetic } from '@/components/magnetic/use-magnetic'
 
 interface Stat {
   label: string
@@ -97,10 +98,12 @@ const inventory = [
 ]
 
 export function DashboardPage() {
+  const ref = useMagnetic<HTMLDivElement>({ maxOffset: 2, strength: 0.15 })
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
+        <div className="border-l-2 border-primary/70 pl-3">
           <h1 className="font-heading text-2xl font-semibold tracking-tight">
             Buenos días, Ana
           </h1>
@@ -108,19 +111,18 @@ export function DashboardPage() {
             Este es el resumen de la operación de Vantax para hoy.
           </p>
         </div>
-
-        <DollarRate
-          variant="card"
-          className="w-full shrink-0 lg:w-72"
-        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label} size="sm">
+          <Card key={stat.label} size="sm"
+          ref={ref}
+          >
             <CardHeader>
               <CardDescription>{stat.label}</CardDescription>
-              <CardTitle className="text-2xl">{stat.value}</CardTitle>
+              <CardTitle className="text-2xl tabular-nums">
+                {stat.value}
+              </CardTitle>
             </CardHeader>
             <CardContent className="flex items-end justify-between gap-2">
               <div className="space-y-0.5">
@@ -140,7 +142,9 @@ export function DashboardPage() {
                 </p>
                 <p className="text-[11px] text-muted-foreground">{stat.hint}</p>
               </div>
-              <stat.icon className="size-8 text-muted-foreground/30" />
+              <span className="grid size-9 place-items-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/15">
+                <stat.icon className="size-4" />
+              </span>
             </CardContent>
           </Card>
         ))}
@@ -180,41 +184,6 @@ export function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Inventario crítico</CardTitle>
-          <CardDescription>
-            Productos por debajo del 60% de su stock objetivo
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-3">
-          {inventory.map((product) => {
-            const percentage = Math.round((product.stock / product.total) * 100)
-
-            return (
-              <div key={product.name} className="space-y-2">
-                <div className="flex items-center justify-between gap-2 text-sm">
-                  <span className="truncate font-medium">{product.name}</span>
-                  <span className="shrink-0 text-xs text-muted-foreground">
-                    {product.stock}/{product.total}
-                  </span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={
-                      percentage < 30
-                        ? 'h-full rounded-full bg-destructive'
-                        : 'h-full rounded-full bg-primary'
-                    }
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-              </div>
-            )
-          })}
-        </CardContent>
-      </Card>
     </div>
   )
 }

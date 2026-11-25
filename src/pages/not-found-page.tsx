@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 
 export function NotFoundPage() {
   return (
-    <div className="grid min-h-svh place-items-center bg-background p-6 text-center">
+    <div className="app-aurora grid min-h-svh place-items-center bg-background p-6 text-center">
       <div className="space-y-4">
         <p className="text-sm font-medium text-muted-foreground">404</p>
         <h1 className="font-heading text-3xl font-semibold tracking-tight">

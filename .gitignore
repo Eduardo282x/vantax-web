@@ -26,3 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Preview files
+deepseek_html_20261019_527cbb.html
+vantax-frontend-visual-preview.html

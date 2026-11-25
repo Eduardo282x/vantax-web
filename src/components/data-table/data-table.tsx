@@ -404,7 +404,7 @@ export function DataTable<TData>({
   return (
     <div
       className={cn(
-        'overflow-hidden rounded-xl border border-border/80 bg-card',
+        'glass-panel overflow-hidden rounded-xl border border-glass-border shadow-card',
         className,
       )}
     >
@@ -473,7 +473,7 @@ export function DataTable<TData>({
                       key={column.id}
                       aria-sort={ariaSort}
                       className={cn(
-                        'bg-card',
+                        'bg-secondary/50',
                         alignClass,
                         column.hideOnMobile && 'hidden md:table-cell',
                         column.headerClassName,
@@ -504,7 +504,7 @@ export function DataTable<TData>({
                 })}
 
                 {hasActions && (
-                  <TableHead className="w-[1%] text-right">
+                  <TableHead className="w-[1%] bg-secondary/50 text-right">
                     Acciones
                   </TableHead>
                 )}
@@ -548,7 +548,7 @@ export function DataTable<TData>({
                   return (
                     <TableRow
                       key={getRowKey(row, index, getRowId)}
-                      className="transition-colors hover:bg-muted/40"
+                      className="transition-colors duration-200"
                     >
                       {columns.map((column) => (
                         <TableCell
