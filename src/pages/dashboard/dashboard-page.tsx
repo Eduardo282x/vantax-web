@@ -8,6 +8,7 @@ import {
   FiUsers,
 } from 'react-icons/fi'
 
+import { DollarRate } from '@/components/dollar-rate/dollar-rate'
 import { Badge } from '@/components/ui/badge'
 import {
   Card,
@@ -98,13 +99,20 @@ const inventory = [
 export function DashboardPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-semibold tracking-tight">
-          Buenos días, Ana
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Este es el resumen de la operación de Vantax para hoy.
-        </p>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <h1 className="font-heading text-2xl font-semibold tracking-tight">
+            Buenos días, Ana
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Este es el resumen de la operación de Vantax para hoy.
+          </p>
+        </div>
+
+        <DollarRate
+          variant="card"
+          className="w-full shrink-0 lg:w-72"
+        />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">

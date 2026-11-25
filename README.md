@@ -67,16 +67,19 @@ Al añadir una variable nueva, actualiza también `src/vite-env.d.ts`.
 
 | Área / módulo | Estado |
 | --- | --- |
-| Inicio / dashboard | Implementado con datos estáticos. Alertas y actividad usan placeholder. |
-| Usuarios | Implementado con CRUD sobre mocks, tabla, filtros, paginación local y edición contextual. |
-| Preferencias | Implementado: tema claro/oscuro, entorno y reset de datos locales. |
-| Ventas | Rutas y dock listos; pantallas con placeholder. |
-| Inventario | Rutas y dock listos; pantallas con placeholder. |
-| Compras | Rutas y dock listos; pantallas con placeholder. |
-| Reportes | Rutas y dock listos; pantallas con placeholder. |
-| Analítica predictiva | Transversal; su cálculo es responsabilidad del backend. |
+| Inicio / dashboard | Implementado con datos estáticos e incluye la tasa del dólar. Alertas y actividad usan placeholder. |
+| Usuarios | Implementado con CRUD sobre mocks, tabla, filtros, paginación local y edición contextual. Roles y permisos con placeholder. |
+| Clientes | Ruta y dock listos; pantalla con placeholder. |
+| Productos | Ruta y dock listos; catálogo, categorías y optimización de precios con placeholder. |
+| Inventario | Ruta y dock listos; existencias, movimientos y alertas con placeholder. |
+| Compras | Ruta y dock listos; registrar compra, historial, proveedores y entradas con placeholder. |
+| Ventas | Página base con tasa del dólar; punto de venta, historial, comprobantes y devoluciones con placeholder. |
+| Reportes | Ruta y dock listos; resumen, ventas, inventario, compras, rentabilidad y analítica predictiva con placeholder. |
+| Analítica predictiva | Módulo interno bajo Reportes; cálculo responsabilidad del backend. |
+| Optimización dinámica de precios | Módulo interno bajo Productos; cálculo responsabilidad del backend. |
+| Configuración | Preferencias implementadas; datos comerciales con placeholder. |
 
-El backend vive en el repo hermano `../vantax-api`. A la fecha de esta documentación, sus controladores de usuarios, productos, ventas, dashboard y precios son stubs; por eso el modo mock es el valor de trabajo por defecto.
+El backend vive en el repo hermano `../vantax-api`. A la fecha de esta documentación, sus controladores de usuarios, productos, ventas, dashboard y precios son stubs; el endpoint de tasa de cambio aún no está expuesto. Por eso el modo mock es el valor de trabajo por defecto.
 
 ## Navegación y rutas
 
@@ -85,16 +88,23 @@ La cabecera agrupa las áreas principales. El dock flotante cambia según el ár
 | Área | Ruta | Secciones del dock |
 | --- | --- | --- |
 | Inicio | `/inicio` | Resumen, alertas, actividad |
-| Ventas | `/ventas` | Punto de venta, historial, comprobantes, devoluciones |
-| Inventario | `/inventario` | Productos, movimientos, existencias, alertas de stock, precios inteligentes |
+| Usuarios | `/usuarios` | Usuarios, roles y permisos |
+| Clientes | `/clientes` | Clientes |
+| Productos | `/productos` | Productos, categorías, optimización de precios |
+| Inventario | `/inventario` | Existencias, movimientos, alertas de stock |
 | Compras | `/compras` | Registrar compra, historial, proveedores, entradas de mercancía |
+| Ventas | `/ventas` | Punto de venta, historial, comprobantes, devoluciones |
 | Reportes | `/reportes` | Resumen general, ventas, inventario, compras, rentabilidad, analítica predictiva |
-| Configuración | `/configuracion` | Usuarios, roles y permisos, datos comerciales, preferencias |
+| Configuración | `/configuracion` | Preferencias, datos comerciales |
+
+La analítica predictiva se consulta desde Reportes y la optimización dinámica de precios desde Productos. No son módulos CRUD aislados: se integran en los flujos de productos, inventario, compras, ventas y reportes.
 
 Rutas legadas con redirección:
 
 - `/dashboard` → `/inicio`
-- `/users` → `/configuracion/usuarios`
+- `/users` → `/usuarios`
+- `/configuracion/usuarios` → `/usuarios`
+- `/configuracion/roles` → `/usuarios/roles`
 - `/settings` → `/configuracion`
 
 La configuración de áreas, secciones, rutas e iconos está centralizada en `src/layout/navigation.ts`. No dupliques esa lista en header, dock o páginas.
@@ -146,12 +156,14 @@ src/
 ├─ components/
 │  ├─ data-table/              # DataTable + tipos
 │  ├─ data-filters/            # DataFilters + tipos
+│  ├─ dollar-rate/             # tasa del dólar (header y tarjeta)
 │  ├─ forms/                   # ConfigurableForm + tipos + máscaras
 │  ├─ transition/
 │  │  └─ PageTransition.tsx
 │  └─ ui/                      # shadcn/ui generado
 ├─ pages/
 │  ├─ dashboard/
+│  ├─ sales/
 │  ├─ users/
 │  ├─ settings/
 │  ├─ module-placeholder-page.tsx
@@ -160,6 +172,7 @@ src/
    ├─ base-service.ts
    ├─ query-client.ts
    ├─ utils.ts
+   ├─ exchange-rate/           # tasa del dólar: interface, service y hook
    ├─ ui/ui.store.ts
    └─ users/
       ├─ user.interface.ts
@@ -175,6 +188,7 @@ Responsabilidades:
 - `services/<dominio>`: tipos, acceso a datos, hooks de TanStack Query y estado de UI.
 - `components/ui`: primitivas shadcn generadas; no reescribir sin motivo.
 - `components/data-table`, `components/data-filters`, `components/forms`: componentes de aplicación reutilizables.
+- `components/dollar-rate`: tasa del dólar en variantes `header` y `card`.
 - `routes`: registro de rutas con lazy loading.
 
 ## Patrón para nuevos módulos
@@ -330,6 +344,24 @@ Transición entre listado y detalle/edición. No crear un segundo sistema de tra
 - El contenedor padre debe tener altura disponible.
 - La vista de Usuarios es la referencia de uso.
 
+### `DollarRate`
+
+Ubicación: `src/components/dollar-rate`.
+
+Muestra la tasa oficial del dólar con dos variantes:
+
+- `header`: indicador compacto siempre visible en la cabecera.
+- `card`: tarjeta con fuente, variación, fecha de actualización y acción de refresco.
+
+```tsx
+<DollarRate variant="header" />
+<DollarRate variant="card" className="w-full lg:w-72" />
+```
+
+La tarjeta se usa en `/inicio` y en la página base de `/ventas`. El dato se comparte mediante `useDollarRate` y TanStack Query, con `staleTime` y refresco cada 5 minutos.
+
+El servicio `src/services/exchange-rate` usa datos mock cuando `VITE_USE_MOCKS=true`. El endpoint real (`GET /exchange-rate/current`) aún no está implementado en `vantax-api`; no desactives mocks sin verificar el backend.
+
 ## Integración con la API
 
 `src/services/base-service.ts` crea una instancia de Axios con:
@@ -351,12 +383,13 @@ Los servicios con datos demo implementan mocks internos con `VITE_USE_MOCKS`. No
 - Tablas: `DataTable` con búsqueda debounced, filtros, ordenamiento, paginación y acciones.
 - Filtros: `DataFilters` controlado.
 - Formularios: React Hook Form + Zod + `ConfigurableForm`.
+- Tasa del dólar: `DollarRate` + `useDollarRate`, con caché compartida entre header, inicio y ventas.
 - Edición contextual: muestra el registro original, resalta campos modificados y permite guardar o descartar.
 - Acciones destructivas: confirmación explícita; el patrón actual es `window.confirm`.
 
 ## Analítica predictiva
 
-La analítica es transversal y no se calcula en React. El frontend captura datos, dispara procesos del backend y visualiza resultados.
+La analítica es transversal y no se calcula en React. El frontend captura datos, dispara procesos del backend y visualiza resultados. La analítica predictiva se consulta en `/reportes/analitica`; la optimización dinámica de precios, en `/productos/precios`.
 
 Activación por evento: al registrar y confirmar una entrada de mercancía se envían producto, cantidad, precio de compra unitario, costo total, fecha y proveedor. El backend actualiza inventario, conserva el historial de costos y calcula la recomendación de precio considerando costos, compras, ventas, existencias, historial de precios, margen y reglas comerciales.
 
@@ -386,7 +419,8 @@ Después de confirmar una compra, invalida las queries afectadas de inventario, 
 2. Si cambiaste rutas, lazy loading, variables de entorno, Vite, Tailwind o el bundle, ejecuta `pnpm build`.
 3. Prueba en `pnpm dev`: navegación header/dock, rutas en español, responsive, tema claro/oscuro, tablas, filtros, formularios y `PageTransition`.
 4. Verifica que la búsqueda espere 500 ms, que los filtros se limpien correctamente y que la edición conserve el contexto del listado.
-5. Revisa la consola del navegador y que no queden imports sin usar.
-6. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example`.
+5. Verifica `DollarRate` en header, `/inicio` y `/ventas`: tasa, fuente, variación, fecha, carga y error.
+6. Revisa la consola del navegador y que no queden imports sin usar.
+7. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example`.
 
 No afirmes que hay tests: no existe suite configurada.

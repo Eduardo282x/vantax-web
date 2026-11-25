@@ -1,6 +1,7 @@
 import { FiBell, FiMoon, FiSun } from 'react-icons/fi'
 import { NavLink, useLocation } from 'react-router'
 
+import { DollarRate } from '@/components/dollar-rate/dollar-rate'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/services/utils'
 import { useUiStore } from '@/services/ui/ui.store'
@@ -61,6 +62,8 @@ export function AppHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <DollarRate variant="header" className="mr-1" />
+
           <Button
             variant="ghost"
             size="icon"

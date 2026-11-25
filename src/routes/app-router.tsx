@@ -19,6 +19,11 @@ async function loadUsers() {
   return { Component: UsersPage }
 }
 
+async function loadSales() {
+  const { SalesPage } = await import('@/pages/sales/sales-page')
+  return { Component: SalesPage }
+}
+
 async function loadSettings() {
   const { SettingsPage } = await import('@/pages/settings/settings-page')
   return { Component: SettingsPage }
@@ -45,7 +50,19 @@ export const appRouter = createBrowserRouter([
         lazy: loadPlaceholder,
       },
       {
-        path: 'ventas/*',
+        path: 'usuarios',
+        lazy: loadUsers,
+      },
+      {
+        path: 'usuarios/roles',
+        lazy: loadPlaceholder,
+      },
+      {
+        path: 'clientes/*',
+        lazy: loadPlaceholder,
+      },
+      {
+        path: 'productos/*',
         lazy: loadPlaceholder,
       },
       {
@@ -57,20 +74,20 @@ export const appRouter = createBrowserRouter([
         lazy: loadPlaceholder,
       },
       {
+        path: 'ventas',
+        lazy: loadSales,
+      },
+      {
+        path: 'ventas/*',
+        lazy: loadPlaceholder,
+      },
+      {
         path: 'reportes/*',
         lazy: loadPlaceholder,
       },
       {
         path: 'configuracion',
         lazy: loadSettings,
-      },
-      {
-        path: 'configuracion/usuarios',
-        lazy: loadUsers,
-      },
-      {
-        path: 'configuracion/roles',
-        lazy: loadPlaceholder,
       },
       {
         path: 'configuracion/datos',
@@ -82,7 +99,15 @@ export const appRouter = createBrowserRouter([
       },
       {
         path: 'users',
-        element: <Navigate to="/configuracion/usuarios" replace />,
+        element: <Navigate to="/usuarios" replace />,
+      },
+      {
+        path: 'configuracion/usuarios',
+        element: <Navigate to="/usuarios" replace />,
+      },
+      {
+        path: 'configuracion/roles',
+        element: <Navigate to="/usuarios/roles" replace />,
       },
       {
         path: 'settings',

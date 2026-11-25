@@ -23,6 +23,7 @@ import {
   FiTag,
   FiTrendingUp,
   FiTruck,
+  FiUserCheck,
   FiUsers,
 } from 'react-icons/fi'
 
@@ -46,7 +47,7 @@ export const navigationAreas: NavigationArea[] = [
   {
     to: '/inicio',
     label: 'Inicio',
-    description: 'Resumen general del negocio',
+    description: 'Dashboard y resumen del negocio',
     icon: FiHome,
     items: [
       {
@@ -101,19 +102,26 @@ export const navigationAreas: NavigationArea[] = [
         description: 'Gestión de devoluciones',
         icon: FiRotateCcw,
       },
+      {
+        to: '/clientes',
+        label: 'Clientes',
+        description: 'Directorio de clientes',
+        icon: FiUserCheck,
+        exact: true,
+      },
     ],
   },
   {
     to: '/inventario',
     label: 'Inventario',
-    description: 'Productos, existencias y precios',
+    description: 'Existencias y movimientos',
     icon: FiBox,
     items: [
       {
         to: '/inventario',
-        label: 'Productos',
-        description: 'Catálogo de productos',
-        icon: FiPackage,
+        label: 'Inventario',
+        description: 'Stock disponible',
+        icon: FiArchive,
         exact: true,
       },
       {
@@ -123,22 +131,29 @@ export const navigationAreas: NavigationArea[] = [
         icon: FiRepeat,
       },
       {
-        to: '/inventario/existencias',
-        label: 'Existencias',
-        description: 'Stock disponible',
-        icon: FiArchive,
-      },
-      {
         to: '/inventario/alertas',
         label: 'Alertas de stock',
         description: 'Productos por reponer',
         icon: FiAlertTriangle,
       },
       {
-        to: '/inventario/precios',
-        label: 'Precios inteligentes',
-        description: 'Recomendaciones de precio',
+        to: '/productos',
+        label: 'Productos',
+        description: 'Catálogo de productos',
+        icon: FiPackage,
+        exact: true,
+      },
+      {
+        to: '/productos/categorias',
+        label: 'Categorías',
+        description: 'Organización del catálogo',
         icon: FiTag,
+      },
+      {
+        to: '/productos/precios',
+        label: 'Optimización de precios',
+        description: 'Precios dinámicos recomendados',
+        icon: FiTrendingUp,
       },
     ],
   },
@@ -175,10 +190,11 @@ export const navigationAreas: NavigationArea[] = [
       },
     ],
   },
+
   {
     to: '/reportes',
     label: 'Reportes',
-    description: 'Análisis y rentabilidad',
+    description: 'Dashboard, reportes y analítica',
     icon: FiBarChart2,
     items: [
       {
@@ -221,35 +237,23 @@ export const navigationAreas: NavigationArea[] = [
     ],
   },
   {
-    to: '/configuracion',
-    label: 'Configuración',
-    description: 'Usuarios, permisos y preferencias',
-    icon: FiSettings,
+    to: '/usuarios',
+    label: 'Usuarios',
+    description: 'Gestión de usuarios y permisos',
+    icon: FiUsers,
     items: [
       {
-        to: '/configuracion/usuarios',
+        to: '/usuarios',
         label: 'Usuarios',
         description: 'Equipo con acceso al sistema',
         icon: FiUsers,
+        exact: true,
       },
       {
-        to: '/configuracion/roles',
+        to: '/usuarios/roles',
         label: 'Roles y permisos',
         description: 'Accesos por rol',
         icon: FiShield,
-      },
-      {
-        to: '/configuracion/datos',
-        label: 'Datos comerciales',
-        description: 'Información del negocio',
-        icon: FiBriefcase,
-      },
-      {
-        to: '/configuracion',
-        label: 'Preferencias',
-        description: 'Apariencia y entorno',
-        icon: FiSliders,
-        exact: true,
       },
     ],
   },

@@ -21,8 +21,8 @@ Vantax es el frontend de un sistema de gestión comercial y ventas (POS) con ana
 | Navegación | Áreas y secciones en `src/layout/navigation.ts`; rutas en español. | Una sola fuente de verdad para header y dock. |
 | Transiciones | `PageTransition` integrado en Usuarios para listado ↔ detalle. | Reutilizarlo en los demás módulos. |
 | Tema | Paleta azul aplicada en `:root` y `.dark` de `src/index.css`. | Mantener contraste AA y tokens semánticos. |
-| Componentes | `DataTable`, `DataFilters` y `ConfigurableForm` implementados. | Reutilizarlos en todos los módulos. |
-| Datos | Usuarios con mocks; dashboard estático; módulos nuevos con placeholder. | Conectar módulos al backend cuando existan endpoints. |
+| Componentes | `DataTable`, `DataFilters`, `ConfigurableForm` y `DollarRate` implementados. | Reutilizarlos en todos los módulos. |
+| Datos | Usuarios y tasa del dólar con mocks; dashboard estático; módulos nuevos con placeholder. | Conectar módulos al backend cuando existan endpoints. |
 | Tests | No hay runner ni suite configurada. | No inventar comandos ni resultados de tests. |
 
 Los archivos `.html` sueltos en la raíz (por ejemplo los prototipos visuales) son referencias estáticas: no forman parte del build, no se importan en React y no deben copiarse como código de producción.
@@ -31,18 +31,21 @@ Los archivos `.html` sueltos en la raíz (por ejemplo los prototipos visuales) s
 
 | Área principal | Módulos / secciones | Estado frontend |
 | --- | --- | --- |
-| Inicio | Dashboard, alertas y actividad reciente. | Dashboard implementado con datos estáticos; alertas y actividad con placeholder. |
-| Ventas | Punto de venta, historial, comprobantes, devoluciones. | Rutas y dock listos; pantallas con placeholder. |
-| Inventario | Productos, movimientos, existencias, alertas de stock, precios inteligentes. | Rutas y dock listos; pantallas con placeholder. |
-| Compras | Registrar compra, historial, proveedores, entradas de mercancía. | Rutas y dock listos; pantallas con placeholder. |
-| Reportes | Resumen, ventas, inventario, compras, rentabilidad, analítica predictiva. | Rutas y dock listos; pantallas con placeholder. |
-| Configuración | Usuarios, roles y permisos, datos comerciales, preferencias. | Usuarios y preferencias implementados; roles y datos con placeholder. |
+| Inicio | Dashboard, alertas y actividad reciente. | Dashboard implementado con datos estáticos y tasa del dólar; alertas y actividad con placeholder. |
+| Usuarios | Usuarios, roles y permisos. | Usuarios implementados; roles con placeholder. |
+| Clientes | Gestión de clientes. | Ruta y dock listos; pantalla con placeholder. |
+| Productos | Catálogo, categorías y optimización dinámica de precios. | Ruta y dock listos; pantallas con placeholder. |
+| Inventario | Existencias, movimientos y alertas de stock. | Ruta y dock listos; pantallas con placeholder. |
+| Compras | Registrar compra, historial, proveedores y entradas de mercancía. | Ruta y dock listos; pantallas con placeholder. |
+| Ventas | Punto de venta, historial, comprobantes y devoluciones. | Página base con tasa del dólar; subsecciones con placeholder. |
+| Reportes | Resumen, ventas, inventario, compras, rentabilidad y analítica predictiva. | Ruta y dock listos; pantallas con placeholder. |
+| Configuración | Preferencias y datos comerciales. | Preferencias implementadas; datos comerciales con placeholder. |
 
-La analítica predictiva es transversal: se integra en productos, compras, inventario, dashboard y reportes. No es un CRUD aislado.
+La analítica predictiva se consulta desde Reportes y la optimización dinámica de precios desde Productos. Son módulos internos transversales, no CRUD aislados.
 
 ### Estado del backend (verificar antes de asumir)
 
-A fecha de esta documentación, en `../vantax-api` los controladores de `users`, `products`, `sales`, `dashboard` y `pricing` son stubs vacíos; solo `POST /api/auth` tiene implementación. Por eso `VITE_USE_MOCKS=true` es el modo de trabajo por defecto. Antes de desactivar mocks, confirma el endpoint real en el backend.
+A fecha de esta documentación, en `../vantax-api` los controladores de `users`, `products`, `sales`, `dashboard` y `pricing` son stubs vacíos; solo `POST /api/auth` tiene implementación. El módulo de tasa de cambio existe como servicio interno, pero no expone un controlador HTTP. Por eso `VITE_USE_MOCKS=true` es el modo de trabajo por defecto. Antes de desactivar mocks, confirma el endpoint real en el backend.
 
 ## 2. Comandos
 
@@ -73,12 +76,14 @@ src/
 ├─ components/
 │  ├─ data-table/                   # DataTable reutilizable + tipos
 │  ├─ data-filters/                 # filtros select, multi-select, fecha y rango
+│  ├─ dollar-rate/                  # tasa del dólar: variantes header y card
 │  ├─ forms/                        # ConfigurableForm + tipos + máscaras
 │  ├─ transition/
 │  │  └─ PageTransition.tsx         # transición listado ↔ detalle
 │  └─ ui/                           # shadcn/ui generado (Radix)
 ├─ pages/
 │  ├─ dashboard/                    # dashboard-page.tsx + revenue-chart.tsx
+│  ├─ sales/                        # página base de ventas + tasa del dólar
 │  ├─ users/                        # users-page.tsx + users-form.tsx
 │  ├─ settings/
 │  ├─ module-placeholder-page.tsx   # placeholder para módulos por implementar
@@ -87,7 +92,8 @@ src/
    ├─ base-service.ts               # Axios + helpers + getApiErrorMessage
    ├─ query-client.ts               # defaults de TanStack Query
    ├─ utils.ts                      # re-export de cn
-   ├─ ui/ui.store.ts                # Zustand persist: tema, sidebar y móvil
+   ├─ exchange-rate/                # tasa del dólar: interface, service y hook
+   ├─ ui/ui.store.ts                # Zustand persist: tema
    └─ users/                        # dominio de referencia
       ├─ user.interface.ts
       ├─ user.service.ts
@@ -114,6 +120,7 @@ Componentes de aplicación ya implementados:
 - `DataTable`: columnas tipadas, búsqueda con debounce de 500 ms, ordenamiento, paginación local o controlada, edición/eliminación y estados.
 - `DataFilters`: selector simple, multi-select, fecha y rango de fechas.
 - `ConfigurableForm`: campos de texto, email, password, número, solo números, teléfono, cédula, fecha y select; incluye hints, sugerencias, errores y resaltado de campos modificados.
+- `DollarRate`: tasa del dólar en variantes `header` y `card`; usa `useDollarRate` con caché compartida.
 - `PageTransition`: listado ↔ detalle; ya se usa en Usuarios.
 
 No existen todavía `Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Tooltip`, `Tabs` ni `Sheet`. Si el diseño los necesita, añádelos con `pnpm dlx shadcn@latest add <componente>` y verifica su API antes de usarlos. **No importes componentes ni inventes props que no existan.**
@@ -201,16 +208,21 @@ El tema global es Zustand (`useUiStore`), no `next-themes`. `next-themes` solo a
 
 La navegación global vive en una cabecera compacta y sticky. Debe permitir cambiar de área sin sidebar.
 
-Áreas principales: **Inicio, Ventas, Inventario, Compras, Reportes, Configuración**. Rutas y etiquetas en español.
+Áreas principales: **Inicio, Usuarios, Clientes, Productos, Inventario, Compras, Ventas, Reportes y Configuración**. Rutas y etiquetas en español.
 
 | Área | Ruta | Estado |
 | --- | --- | --- |
-| Inicio | `/inicio` | Implementada. |
-| Ventas | `/ventas` | Ruta y dock implementados; contenido placeholder. |
+| Inicio | `/inicio` | Implementada con dashboard y tasa del dólar. |
+| Usuarios | `/usuarios` | Usuarios implementados; roles con placeholder. |
+| Clientes | `/clientes` | Ruta y dock implementados; contenido placeholder. |
+| Productos | `/productos` | Ruta y dock implementados; contenido placeholder. |
 | Inventario | `/inventario` | Ruta y dock implementados; contenido placeholder. |
 | Compras | `/compras` | Ruta y dock implementados; contenido placeholder. |
+| Ventas | `/ventas` | Página base con tasa del dólar; subsecciones placeholder. |
 | Reportes | `/reportes` | Ruta y dock implementados; contenido placeholder. |
-| Configuración | `/configuracion` | Implementada; usuarios y preferencias reales, resto placeholder. |
+| Configuración | `/configuracion` | Preferencias implementadas; datos comerciales con placeholder. |
+
+Las rutas legadas `/dashboard`, `/users`, `/settings`, `/configuracion/usuarios` y `/configuracion/roles` redirigen a sus equivalentes actuales.
 
 El header debe incluir:
 
@@ -218,6 +230,7 @@ El header debe incluir:
 - Navegación de áreas con estado activo y `aria-current`.
 - Contexto de navegación (área actual y, si aplica, breadcrumb o título de sección).
 - Búsqueda global o contextual cuando exista soporte.
+- Tasa del dólar siempre visible con `DollarRate variant="header"`.
 - Notificaciones.
 - Acciones generales (por ejemplo tema claro/oscuro).
 - Información del usuario, acceso a perfil y opciones de sesión.
@@ -248,12 +261,17 @@ Contenido contextual de referencia (adaptar a los módulos reales):
 
 | Área | Secciones del dock |
 | --- | --- |
-| Inicio | Resumen, alertas, actividad reciente (si se añaden subsecciones). |
-| Ventas | Punto de venta, historial de ventas, comprobantes, devoluciones. |
-| Inventario | Productos, movimientos, existencias, alertas de stock, precios inteligentes. |
-| Compras | Registrar compra, historial de compras, proveedores, entradas de mercancía. |
+| Inicio | Resumen, alertas, actividad reciente. |
+| Usuarios | Usuarios, roles y permisos. |
+| Clientes | Clientes. |
+| Productos | Productos, categorías, optimización de precios. |
+| Inventario | Existencias, movimientos, alertas de stock. |
+| Compras | Registrar compra, historial, proveedores, entradas de mercancía. |
+| Ventas | Punto de venta, historial, comprobantes, devoluciones. |
 | Reportes | Resumen general, ventas, inventario, compras, rentabilidad, analítica predictiva. |
-| Configuración | Usuarios, roles y permisos, datos comerciales, preferencias del sistema. |
+| Configuración | Preferencias, datos comerciales. |
+
+La analítica predictiva y la optimización de precios se exponen como secciones internas dentro de Reportes y Productos, respectivamente. No son áreas principales independientes.
 
 Reglas:
 
@@ -385,11 +403,11 @@ La analítica se integra visualmente donde se necesita consultar, no como un mó
 
 | Pantalla | Información de analítica |
 | --- | --- |
-| Productos | Precio actual, costo de adquisición, precio recomendado, margen y estado. |
+| Productos / `/productos/precios` | Precio actual, costo de adquisición, precio recomendado, margen y estado. |
 | Compras | Nueva adquisición y activación del análisis automático. |
 | Inventario | Variación de costos, existencias y alertas. |
-| Dashboard | Estado de las ejecuciones y evolución de precios. |
-| Reportes | Análisis histórico, rentabilidad y resultados por producto. |
+| Dashboard | Estado de las ejecuciones, evolución de precios y tasa del dólar. |
+| Reportes / `/reportes/analitica` | Análisis histórico, rentabilidad y resultados por producto. |
 
 ### Activación por evento
 
@@ -427,6 +445,7 @@ Debe existir una ejecución automática diaria en el backend para revisar produc
 - `query-client.ts`: `staleTime` 30 s, `retry: 1`, sin refetch al enfocar y mutaciones sin retry.
 - `DataTable` aplica un debounce de 500 ms a la búsqueda antes de llamar a `onSearchChange`; no añadas otro debounce en la página ni dispares una query por pulsación. La key de TanStack Query debe seguir incluyendo el término de búsqueda.
 - No hay login ni flujo de autenticación en el frontend: solo se lee un token existente. Si implementas sesión, centraliza el guardado/limpieza del token y la redirección.
+- La tasa del dólar vive en `src/services/exchange-rate` y se consume con `useDollarRate`. Comparte la misma caché entre header, inicio y ventas; no crees otra query ni datos mock en componentes. El endpoint real de tasa aún no existe en el backend.
 - Si una pantalla usa `PageTransition`, la query del listado y la del detalle deben coexistir sin duplicar datos ni provocar refetch innecesario; reutiliza la cache y las query keys del dominio.
 
 ## 16. Estado, formularios y validación
@@ -458,7 +477,7 @@ Reglas:
 - Reutiliza componentes, hooks, tipos y patrones existentes antes de crear nuevos.
 - Respeta la estructura y los nombres actuales; no introduzcas una arquitectura paralela.
 - No reintroduzcas un sidebar ni una navegación lateral permanente: el sistema es header + dock.
-- No crees un segundo sistema de navegación, transición, tema, tablas, filtros o formularios. Reutiliza `DataTable`, `DataFilters`, `ConfigurableForm` y `PageTransition`.
+- No crees un segundo sistema de navegación, transición, tema, tablas, filtros, formularios o tasa del dólar. Reutiliza `DataTable`, `DataFilters`, `ConfigurableForm`, `DollarRate` y `PageTransition`.
 - No dupliques las listas de áreas o secciones: edita `src/layout/navigation.ts`.
 - Mantén la lógica de negocio y las llamadas HTTP fuera de los componentes de presentación.
 - Centraliza tipos reutilizables en `*.interface.ts` y evita duplicar contratos entre módulos.
@@ -484,8 +503,9 @@ Reglas:
 6. Verifica tablas: `DataTable` con ancho completo, scroll horizontal, búsqueda debounced, filtros, ordenamiento, paginación y acciones por fila.
 7. Verifica `DataFilters`: selector simple, multi-select, fecha y rango; que el botón de limpiar restablezca el estado.
 8. Verifica `ConfigurableForm`: hints, sugerencias, errores, campos numéricos/máscaras y resaltado de campos modificados.
-9. Verifica `PageTransition`: que cada vista ocupe el ancho completo, que el scroll sea correcto, que se conserven filtros/búsqueda/orden/página y que se pueda volver al listado.
-10. Verifica formularios contextuales: información original visible, campos modificados resaltados, comparación y acciones guardar/descartar.
-11. Revisa la consola del navegador y que no queden imports sin usar (el build falla por `noUnusedLocals`/`noUnusedParameters`).
-12. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example` en el mismo cambio.
-13. No afirmes que hay tests: no existe suite configurada.
+9. Verifica `DollarRate`: visible en el header, presente en `/inicio` y `/ventas`, con carga, error, variación, fuente y fecha de actualización.
+10. Verifica `PageTransition`: que cada vista ocupe el ancho completo, que el scroll sea correcto, que se conserven filtros/búsqueda/orden/página y que se pueda volver al listado.
+11. Verifica formularios contextuales: información original visible, campos modificados resaltados, comparación y acciones guardar/descartar.
+12. Revisa la consola del navegador y que no queden imports sin usar (el build falla por `noUnusedLocals`/`noUnusedParameters`).
+13. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example` en el mismo cambio.
+14. No afirmes que hay tests: no existe suite configurada.
