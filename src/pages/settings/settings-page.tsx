@@ -1,10 +1,4 @@
-import {
-  FiColumns,
-  FiDatabase,
-  FiMoon,
-  FiRefreshCw,
-  FiSun,
-} from 'react-icons/fi'
+import { FiDatabase, FiMoon, FiRefreshCw, FiSun } from 'react-icons/fi'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -25,8 +19,6 @@ const isMockMode = import.meta.env.VITE_USE_MOCKS === 'true'
 export function SettingsPage() {
   const theme = useUiStore((state) => state.theme)
   const setTheme = useUiStore((state) => state.setTheme)
-  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed)
-  const toggleSidebar = useUiStore((state) => state.toggleSidebar)
   const resetUserFilters = useUserStore((state) => state.reset)
 
   function handleReset() {
@@ -72,22 +64,6 @@ export function SettingsPage() {
               >
                 <FiMoon className="size-4" />
                 Tema oscuro
-              </Button>
-            </div>
-
-            <Separator />
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-sm font-medium">Menú lateral</p>
-                <p className="text-xs text-muted-foreground">
-                  {sidebarCollapsed ? 'Contraído' : 'Expandido'} · también se
-                  guarda entre sesiones.
-                </p>
-              </div>
-              <Button variant="outline" onClick={toggleSidebar}>
-                <FiColumns className="size-4" />
-                {sidebarCollapsed ? 'Expandir' : 'Contraer'}
               </Button>
             </div>
           </CardContent>

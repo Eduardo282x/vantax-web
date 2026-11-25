@@ -1,26 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
-import { FiLoader, FiSave, FiUserPlus } from 'react-icons/fi'
 import { z } from 'zod'
 
-import { Button } from '@/components/ui/button'
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { ConfigurableForm } from '@/components/forms/configurable-form'
+import type { ConfigurableFormField } from '@/components/forms/configurable-form.interface'
 import {
   USER_ROLES,
   USER_ROLE_LABELS,
@@ -79,6 +62,58 @@ export function UsersForm({ user, onSuccess, onCancel }: UsersFormProps) {
 
   const isPending = createUser.isPending || updateUser.isPending
 
+  const fields: ConfigurableFormField<UserFormValues>[] = [
+    {
+      name: 'name',
+      label: 'Nombre',
+      type: 'text',
+      placeholder: 'Ana',
+      autoComplete: 'given-name',
+      required: true,
+    },
+    {
+      name: 'lastName',
+      label: 'Apellido',
+      type: 'text',
+      placeholder: 'Torres',
+      autoComplete: 'family-name',
+      required: true,
+    },
+    {
+      name: 'username',
+      label: 'Usuario',
+      type: 'text',
+      placeholder: 'atorres',
+      autoComplete: 'username',
+      description: 'Se usará para iniciar sesión en el sistema.',
+      suggestions: ['atorres', 'jlopez', 'mramirez'],
+      required: true,
+    },
+    {
+      name: 'roles',
+      label: 'Rol',
+      type: 'select',
+      placeholder: 'Selecciona un rol',
+      options: USER_ROLES.map((role) => ({
+        label: USER_ROLE_LABELS[role],
+        value: role,
+      })),
+      required: true,
+    },
+    {
+      name: 'password',
+      label: isEdit ? 'Nueva contraseña' : 'Contraseña',
+      type: 'password',
+      placeholder: '••••••••',
+      autoComplete: 'new-password',
+      description: isEdit
+        ? 'Déjala vacía para conservar la contraseña actual.'
+        : 'Mínimo 6 caracteres.',
+      required: !isEdit,
+      fullWidth: true,
+    },
+  ]
+
   function handleSubmit(values: UserFormValues) {
     const payload = {
       username: values.username.trim(),
@@ -113,136 +148,16 @@ export function UsersForm({ user, onSuccess, onCancel }: UsersFormProps) {
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre</FormLabel>
-              <FormControl>
-                <Input placeholder="Ana" autoComplete="given-name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Apellido</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Torres"
-                  autoComplete="family-name"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Usuario</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="atorres"
-                  autoComplete="username"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Se usará para iniciar sesión en el sistema.
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="roles"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Rol</FormLabel>
-              <Select value={field.value} onValueChange={field.onChange}>
-                <FormControl>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona un rol" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {USER_ROLES.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {USER_ROLE_LABELS[role]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                {isEdit ? 'Nueva contraseña' : 'Contraseña'}
-              </FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  autoComplete={isEdit ? 'new-password' : 'new-password'}
-                  placeholder="••••••••"
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                {isEdit
-                  ? 'Déjala vacía para conservar la contraseña actual.'
-                  : 'Mínimo 6 caracteres.'}
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex flex-col gap-2 pt-2 sm:flex-row">
-          <Button type="submit" disabled={isPending} className="flex-1">
-            {isPending ? (
-              <FiLoader className="size-4 animate-spin" />
-            ) : isEdit ? (
-              <FiSave className="size-4" />
-            ) : (
-              <FiUserPlus className="size-4" />
-            )}
-            {isEdit ? 'Guardar cambios' : 'Crear usuario'}
-          </Button>
-
-          {onCancel && (
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isPending}
-              onClick={onCancel}
-            >
-              Cancelar
-            </Button>
-          )}
-        </div>
-      </form>
-    </Form>
+    <ConfigurableForm
+      form={form}
+      fields={fields}
+      onSubmit={handleSubmit}
+      submitLabel={isEdit ? 'Guardar cambios' : 'Crear usuario'}
+      cancelLabel="Cancelar"
+      onCancel={onCancel}
+      isSubmitting={isPending}
+      columns={2}
+      highlightDirty={isEdit}
+    />
   )
 }

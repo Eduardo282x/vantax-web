@@ -1,31 +1,22 @@
 import { Outlet } from 'react-router'
 
-import { useUiStore } from '@/services/ui/ui.store'
-import { cn } from '@/services/utils'
 import { AppHeader } from './app-header'
-import { AppSidebar } from './app-sidebar'
+import { FloatingDock } from './floating-dock'
 
 export function AppLayout() {
-  const sidebarCollapsed = useUiStore((state) => state.sidebarCollapsed)
-
   return (
     <div className="min-h-svh bg-background text-foreground">
-      <AppSidebar />
+      <AppHeader />
+      <FloatingDock />
 
-      <div
-        className={cn(
-          'flex min-h-svh flex-col transition-[padding] duration-200',
-          sidebarCollapsed ? 'md:pl-16' : 'md:pl-64',
-        )}
-      >
-        <AppHeader />
-
-        <main className="flex-1 px-4 py-6 md:px-6 lg:px-8">
+      <div className="flex min-h-svh flex-col">
+        <main className="flex-1 px-4 pt-5 pb-28 md:pr-6 md:pb-8 md:pl-24 lg:pr-8">
           <Outlet />
         </main>
 
-        <footer className="border-t px-4 py-4 text-xs text-muted-foreground md:px-6">
-          Vantax · React + Vite + shadcn/ui
+        <footer className="border-t border-border/70 px-4 pt-4 pb-24 text-xs text-muted-foreground md:pr-6 md:pb-4 md:pl-24 lg:pr-8">
+          <span className="font-medium text-foreground">Vantax</span> · Gestión
+          comercial inteligente
         </footer>
       </div>
     </div>

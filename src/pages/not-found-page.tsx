@@ -12,13 +12,13 @@ export function NotFoundPage() {
           Página no encontrada
         </h1>
         <p className="mx-auto max-w-md text-sm text-muted-foreground">
-          La ruta que buscas no existe o fue movida. Vuelve al dashboard para
+          La ruta que buscas no existe o fue movida. Vuelve al inicio para
           continuar.
         </p>
         <Button asChild>
-          <Link to="/dashboard">
+          <Link to="/inicio">
             <FiArrowLeft className="size-4" />
-            Volver al dashboard
+            Volver al inicio
           </Link>
         </Button>
       </div>

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Guía obligatoria para agentes de IA que trabajen en `vantax-web`. Léela antes de crear pantallas, componentes, navegación, servicios o módulos. El código, los archivos y las rutas usan inglés; todo el texto visible al usuario va en español.
+Guía obligatoria para agentes de IA que trabajen en `vantax-web`. Léela antes de crear pantallas, componentes, navegación, servicios o módulos. El código y los archivos usan inglés; las rutas y todo el texto visible al usuario van en español.
 
 Si una regla visual de esta guía aún no coincide con el código, no la ignores ni crees una solución paralela: implementa la migración de forma incremental y conserva el funcionamiento actual mientras avanzas.
 
@@ -17,11 +17,12 @@ Vantax es el frontend de un sistema de gestión comercial y ventas (POS) con ana
 
 | Aspecto | Estado actual verificado | Objetivo |
 | --- | --- | --- |
-| Layout | `AppLayout` con `AppSidebar` fijo de 256 px y offset `md:pl-64`. | Header global + dock flotante; sin columna lateral permanente. |
-| Navegación | Lista plana en `src/layout/navigation.ts` para sidebar. | Áreas principales en header y subnavegación contextual por área. |
-| Transiciones | `PageTransition` existe, pero no está integrado en rutas ni páginas. | Único sistema de transición listado ↔ detalle. |
-| Tema | `src/index.css` sigue en escala neutral. | Paleta azul definida en esta guía. |
-| Datos | Usuarios con mocks; dashboard estático. | Módulos comerciales conectados al backend cuando existan endpoints. |
+| Layout | `AppLayout` con `AppHeader` + `FloatingDock` y contenido full-width; sin sidebar. | Mantener header + dock + workspace amplio. |
+| Navegación | Áreas y secciones en `src/layout/navigation.ts`; rutas en español. | Una sola fuente de verdad para header y dock. |
+| Transiciones | `PageTransition` integrado en Usuarios para listado ↔ detalle. | Reutilizarlo en los demás módulos. |
+| Tema | Paleta azul aplicada en `:root` y `.dark` de `src/index.css`. | Mantener contraste AA y tokens semánticos. |
+| Componentes | `DataTable`, `DataFilters` y `ConfigurableForm` implementados. | Reutilizarlos en todos los módulos. |
+| Datos | Usuarios con mocks; dashboard estático; módulos nuevos con placeholder. | Conectar módulos al backend cuando existan endpoints. |
 | Tests | No hay runner ni suite configurada. | No inventar comandos ni resultados de tests. |
 
 Los archivos `.html` sueltos en la raíz (por ejemplo los prototipos visuales) son referencias estáticas: no forman parte del build, no se importan en React y no deben copiarse como código de producción.
@@ -30,12 +31,12 @@ Los archivos `.html` sueltos en la raíz (por ejemplo los prototipos visuales) s
 
 | Área principal | Módulos / secciones | Estado frontend |
 | --- | --- | --- |
-| Inicio | Dashboard, alertas y actividad reciente. | Dashboard parcial y estático. |
-| Ventas | Punto de venta, historial, comprobantes, devoluciones. | Previsto. |
-| Inventario | Productos, movimientos, existencias, alertas de stock, precios inteligentes. | Previsto. |
-| Compras | Registrar compra, historial, proveedores, entradas de mercancía. | Previsto. |
-| Reportes | Resumen, ventas, inventario, compras, rentabilidad, analítica predictiva. | Previsto. |
-| Configuración | Usuarios, roles y permisos, datos comerciales, preferencias. | Usuarios y preferencias existen; el resto está previsto. |
+| Inicio | Dashboard, alertas y actividad reciente. | Dashboard implementado con datos estáticos; alertas y actividad con placeholder. |
+| Ventas | Punto de venta, historial, comprobantes, devoluciones. | Rutas y dock listos; pantallas con placeholder. |
+| Inventario | Productos, movimientos, existencias, alertas de stock, precios inteligentes. | Rutas y dock listos; pantallas con placeholder. |
+| Compras | Registrar compra, historial, proveedores, entradas de mercancía. | Rutas y dock listos; pantallas con placeholder. |
+| Reportes | Resumen, ventas, inventario, compras, rentabilidad, analítica predictiva. | Rutas y dock listos; pantallas con placeholder. |
+| Configuración | Usuarios, roles y permisos, datos comerciales, preferencias. | Usuarios y preferencias implementados; roles y datos con placeholder. |
 
 La analítica predictiva es transversal: se integra en productos, compras, inventario, dashboard y reportes. No es un CRUD aislado.
 
@@ -65,18 +66,22 @@ src/
 ├─ routes/
 │  └─ app-router.tsx                # createBrowserRouter + lazy imports
 ├─ layout/
-│  ├─ app-layout.tsx                # shell actual: sidebar + header + <Outlet /> + footer
-│  ├─ app-sidebar.tsx               # navegación actual, a reemplazar por header + dock
-│  ├─ app-header.tsx
-│  └─ navigation.ts                 # navegación actual (lista plana)
+│  ├─ app-layout.tsx                # header + dock + <Outlet /> + footer
+│  ├─ app-header.tsx                # navegación global por áreas
+│  ├─ floating-dock.tsx             # navegación contextual según el área
+│  └─ navigation.ts                 # áreas, secciones, rutas e iconos
 ├─ components/
+│  ├─ data-table/                   # DataTable reutilizable + tipos
+│  ├─ data-filters/                 # filtros select, multi-select, fecha y rango
+│  ├─ forms/                        # ConfigurableForm + tipos + máscaras
 │  ├─ transition/
-│  │  └─ PageTransition.tsx         # transición listado ↔ detalle, aún no integrada
+│  │  └─ PageTransition.tsx         # transición listado ↔ detalle
 │  └─ ui/                           # shadcn/ui generado (Radix)
 ├─ pages/
 │  ├─ dashboard/                    # dashboard-page.tsx + revenue-chart.tsx
 │  ├─ users/                        # users-page.tsx + users-form.tsx
 │  ├─ settings/
+│  ├─ module-placeholder-page.tsx   # placeholder para módulos por implementar
 │  └─ not-found-page.tsx
 └─ services/
    ├─ base-service.ts               # Axios + helpers + getApiErrorMessage
@@ -93,9 +98,10 @@ src/
 Responsabilidades:
 
 - `components/ui`: primitivas shadcn generadas. No las reescribas ni reformatees sin motivo; compón o envuelve.
+- `components/data-table`, `components/data-filters`, `components/forms`: componentes reutilizables de tablas, filtros y formularios. Úsalos antes de crear variantes locales.
 - `components/transition`: transiciones de vista reutilizables. No crear un segundo sistema.
-- `layout`: estructura persistente. En el objetivo, el header y el dock viven aquí; las páginas no deben recrear la navegación global.
-- `pages`: pantallas y piezas específicas del dominio. Orquestan hooks, estados de UI y composición.
+- `layout`: estructura persistente. `AppHeader` y `FloatingDock` viven aquí; las páginas no deben recrear la navegación global.
+- `pages`: pantallas y piezas específicas del dominio. Orquestan hooks, estados de UI y composición. Los módulos aún no implementados usan `ModulePlaceholderPage`.
 - `services/<dominio>`: contratos y acceso a datos. `service` = HTTP/mocks; `hook` = TanStack Query, cache e invalidación; `store` = estado de UI persistido; `interface` = tipos y constantes.
 - `routes`: registro de rutas y lazy loading, no lógica de negocio.
 
@@ -103,22 +109,31 @@ Responsabilidades:
 
 Inventario real de `src/components/ui`: `badge`, `button`, `card`, `chart`, `checkbox`, `form`, `input`, `label`, `select`, `separator`, `skeleton`, `sonner`, `table`.
 
-No existen todavía `Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Tooltip`, `Tabs`, `Sheet` ni `Pagination`. Si el diseño los necesita, añádelos con `pnpm dlx shadcn@latest add <componente>` y verifica su API antes de usarlos. **No importes componentes ni inventes props que no existan.**
+Componentes de aplicación ya implementados:
+
+- `DataTable`: columnas tipadas, búsqueda con debounce de 500 ms, ordenamiento, paginación local o controlada, edición/eliminación y estados.
+- `DataFilters`: selector simple, multi-select, fecha y rango de fechas.
+- `ConfigurableForm`: campos de texto, email, password, número, solo números, teléfono, cédula, fecha y select; incluye hints, sugerencias, errores y resaltado de campos modificados.
+- `PageTransition`: listado ↔ detalle; ya se usa en Usuarios.
+
+No existen todavía `Dialog`, `AlertDialog`, `Popover`, `DropdownMenu`, `Tooltip`, `Tabs` ni `Sheet`. Si el diseño los necesita, añádelos con `pnpm dlx shadcn@latest add <componente>` y verifica su API antes de usarlos. **No importes componentes ni inventes props que no existan.**
 
 ## 4. Arquitectura y flujo de datos
 
 - Entrada: `main.tsx` monta `App.tsx`.
 - `App.tsx` provee `QueryClientProvider`, `RouterProvider` y el `Toaster` de Sonner. El tema se aplica con la clase `dark` en `<html>` desde `useUiStore`.
 - Las rutas hijas viven dentro de `AppLayout`; las páginas se cargan con `lazy: async () => ({ Component: XPage })`, por lo que **deben exportarse con export nombrado**.
-- Para añadir una pantalla: crea la página, regístrala en `src/routes/app-router.tsx` y añade su entrada de navegación en la configuración correspondiente.
+- Para añadir una pantalla: crea la página, regístrala en `src/routes/app-router.tsx` con `lazy` y añade su entrada en `src/layout/navigation.ts` (área + sección del dock). Mantén las rutas en español y los nombres de archivo en inglés.
+- Las rutas legadas `/dashboard`, `/users` y `/settings` redirigen a `/inicio`, `/configuracion/usuarios` y `/configuracion`.
 - Flujo de datos: página → hook de dominio → service → `baseService` → API o mocks. El estado del servidor vive en TanStack Query; el estado de UI compartido, en Zustand. No dupliques datos del servidor en stores.
 - Mantén la lógica de negocio fuera de los componentes: validaciones de dominio y transformaciones van en servicios, hooks, helpers o Zod; la presentación solo muestra y dispara acciones.
 - Evita componentes monolíticos. Si una página supera ~200-250 líneas, extrae tabla, filtros, formulario, tarjetas o estados a archivos hermanos dentro de la misma carpeta.
-- Al migrar la navegación, mantén **una sola fuente de verdad** para áreas, secciones, rutas, iconos y etiquetas. No dupliques el mapa de navegación entre header, dock y páginas.
+- Mantén **una sola fuente de verdad** para áreas, secciones, rutas, iconos y etiquetas en `src/layout/navigation.ts`. No dupliques el mapa de navegación entre header, dock y páginas.
 
 ## 5. Convenciones de nombres y archivos
 
 - Archivos y carpetas en `kebab-case`: `users-page.tsx`, `app-header.tsx`, `base-service.ts`.
+- Rutas en español y `kebab-case`: `/inicio`, `/ventas`, `/inventario`, `/compras`, `/reportes`, `/configuracion/usuarios`.
 - Dominio en plural para la carpeta y singular para el prefijo de archivos: `services/users/user.service.ts`, `pages/users/users-page.tsx`.
 - Componentes en `PascalCase` con export nombrado (`export function UsersPage()`). Solo `App.tsx` usa export default.
 - Excepción existente: `src/components/transition/PageTransition.tsx` usa `PascalCase` y export default. Consérvalo así mientras no se migre; no reformatees ese archivo sin motivo.
@@ -161,7 +176,7 @@ Evitar:
 
 ### Identidad cromática (azul)
 
-El tema actual de `src/index.css` sigue siendo neutral (por ejemplo `--primary: oklch(0.205 0 0)`). Al implementar o ajustar el tema, migra `:root` y `.dark` a esta paleta, sin duplicar definiciones ni introducir hex en componentes:
+La paleta azul ya está aplicada en `src/index.css` para `:root` y `.dark`. Conserva estos tokens, evita duplicar definiciones y no introduzcas hex en componentes:
 
 | Token | Hex | oklch aproximado | Uso |
 | --- | --- | --- | --- |
@@ -186,16 +201,16 @@ El tema global es Zustand (`useUiStore`), no `next-themes`. `next-themes` solo a
 
 La navegación global vive en una cabecera compacta y sticky. Debe permitir cambiar de área sin sidebar.
 
-Áreas principales: **Inicio, Ventas, Inventario, Compras, Reportes, Configuración**. Etiquetas en español; rutas y archivos en inglés.
+Áreas principales: **Inicio, Ventas, Inventario, Compras, Reportes, Configuración**. Rutas y etiquetas en español.
 
-| Área | Ruta actual o propuesta | Estado |
+| Área | Ruta | Estado |
 | --- | --- | --- |
-| Inicio | `/dashboard` | Existente. |
-| Ventas | `/sales` | Propuesta; no crear hasta implementar. |
-| Inventario | `/inventory` | Propuesta. |
-| Compras | `/purchases` | Propuesta. |
-| Reportes | `/reports` | Propuesta. |
-| Configuración | `/settings` | Existente. |
+| Inicio | `/inicio` | Implementada. |
+| Ventas | `/ventas` | Ruta y dock implementados; contenido placeholder. |
+| Inventario | `/inventario` | Ruta y dock implementados; contenido placeholder. |
+| Compras | `/compras` | Ruta y dock implementados; contenido placeholder. |
+| Reportes | `/reportes` | Ruta y dock implementados; contenido placeholder. |
+| Configuración | `/configuracion` | Implementada; usuarios y preferencias reales, resto placeholder. |
 
 El header debe incluir:
 
@@ -211,7 +226,7 @@ Reglas:
 
 - Cabecera compacta (aprox. 64-74 px; la referencia visual usa 74 px), superficie limpia, borde inferior discreto y `backdrop-blur` solo si aporta legibilidad.
 - No convertir el header en una segunda barra de herramientas saturada. Las acciones secundarias van a menús o popovers.
-- El header actual (`app-header.tsx`) es una base parcial: muestra título/descripción, tema y un usuario estático. Al migrar, incorpora áreas, notificaciones y menú de usuario; no asumas componentes de menú que aún no existen.
+- El header actual (`app-header.tsx`) ya incluye marca, áreas, notificaciones (placeholder), tema y acceso a configuración con usuario estático. No asumas un menú desplegable de usuario hasta implementarlo.
 - Mantén una jerarquía clara: marca → áreas → contexto → acciones → usuario.
 
 ## 9. Navegación contextual: Floating Dock
@@ -246,9 +261,9 @@ Reglas:
 - La sección activa se determina por la ruta; no mantengas un estado duplicado que pueda desincronizarse.
 - El dock no sustituye al header: el header cambia de área; el dock cambia de sección dentro del área.
 - En escritorio, usa un ancho colapsado de ~48-64 px; al expandir, muestra etiquetas como overlay sin recalcular toda la página (la referencia visual usa botones de 43 px y expansión a ~158 px).
-- En móvil, adapta el dock a una barra inferior flotante y horizontal (o a un menú compacto equivalente) que no ocupe una columna lateral. Mantén accesibles el área y la sección activas.
-- El estado `sidebarCollapsed`/`mobileSidebarOpen` de `ui.store.ts` pertenece al layout anterior. Al migrar, reemplázalo por estado del dock si hace falta; no dejes claves persistidas muertas ni mantengas ambos sistemas.
-- No inventes un componente Dock existente: aún no está implementado. Créalo en `src/layout` o `src/components` cuando se aborde la migración, con props tipadas y una sola fuente de datos.
+- En móvil, el dock se convierte en una barra inferior horizontal con scroll; los labels se ocultan y cada icono conserva `title`/`aria-label`.
+- `src/layout/floating-dock.tsx` ya implementa el dock. Reutilízalo y extiéndelo; no crees otro sistema de navegación contextual.
+- El dock se deriva de `navigationAreas`; si una sección no debe aparecer, no la añadas o marca su estado en la configuración, pero no dupliques listas en las páginas.
 
 ## 10. Layout y aprovechamiento del espacio (Full Workspace)
 
@@ -260,11 +275,12 @@ Reglas:
 - Las tarjetas se reservan para agrupaciones con propósito (resumen, detalle, estado). No envuelvas cada bloque en una card.
 - En páginas de listado, el encabezado de página y las acciones deben ocupar una sola fila cuando el espacio lo permita.
 - Responsive: el contenido es mobile-first, pero la prioridad es que tablas y formularios sigan siendo operables; usa scroll horizontal, columnas ocultables y acciones compactas antes que reducir todo a tarjetas ilegibles.
-- `AppLayout` seguirá siendo el shell, pero su implementación debe migrar de sidebar + offset a header + dock + contenido full-width. Mientras la migración no ocurra, no añadas nuevas páginas acopladas al sidebar actual.
+- `AppLayout` ya implementa header + dock + contenido full-width. No reintroduzcas un sidebar ni añadas offsets laterales permanentes.
+- En móvil, `main` reserva padding inferior para el dock; el footer también evita quedar tapado.
 
 ## 11. Transiciones entre vistas: `PageTransition`
 
-El único sistema de transición existente es `src/components/transition/PageTransition.tsx`. **No existe un componente llamado `Transition`; no inventes uno ni crees un segundo sistema.**
+El único sistema de transición existente es `src/components/transition/PageTransition.tsx`. **No existe un componente llamado `Transition`; no inventes uno ni crees un segundo sistema.** Ya está integrado en Usuarios para pasar del listado al detalle/edición y volver conservando el estado del listado.
 
 API real:
 
@@ -312,7 +328,9 @@ Reglas de uso:
 
 ## 12. Tablas, filtros y popovers
 
-Las tablas son el elemento principal de la aplicación y deben tener prioridad visual frente a tarjetas decorativas.
+Las tablas son el elemento principal de la aplicación y deben tener prioridad visual frente a tarjetas decorativas. Usa `DataTable` de `src/components/data-table` y `DataFilters` de `src/components/data-filters` en lugar de crear tablas o barras de filtros locales.
+
+`DataTable` ya resuelve búsqueda con debounce de 500 ms, ordenamiento local o controlado, paginación local o controlada, edición/eliminación, estados de carga/error/vacío y scroll horizontal. `DataFilters` soporta selector simple, multi-select, fecha y rango de fechas.
 
 Patrones obligatorios:
 
@@ -331,7 +349,7 @@ Popovers:
 - Úsalos para información complementaria sin abandonar la vista: resumen de indicadores, filtros activos, resumen de selección, detalles de una operación, acciones secundarias.
 - Deben tener un propósito claro y cierre evidente.
 - No sustituyen formularios ni vistas de detalle que necesiten espacio o contexto.
-- `Popover` aún no está instalado; añádelo con shadcn cuando se necesite y verifica su API.
+- `Popover` aún no está instalado; añádelo con shadcn cuando se necesite y verifica su API. El multi-select de `DataFilters` usa un panel propio, no un Popover.
 - Para menús de acciones, evalúa `DropdownMenu`; tampoco existe todavía.
 
 ## 13. Vistas de detalle y edición contextual
@@ -359,7 +377,7 @@ Reglas:
 - El resaltado de cambios debe usar tokens (`bg-primary/5`, `border-primary`, `text-primary`), no colores crudos.
 - En compras, muestra producto, cantidad, costo unitario, costo total, fecha y proveedor; el costo total puede mostrarse como confirmación, pero el backend lo valida.
 - En productos e inventario, muestra costo, precio vigente, precio recomendado, margen y estado del análisis cuando la API los provea.
-- La vista actual de Usuarios usa un formulario en tarjeta lateral de 380 px; es una implementación heredada. Al migrar, conviértela en vista secundaria contextual con el principio anterior.
+- La vista de Usuarios ya usa `PageTransition` y muestra el contexto del usuario seleccionado antes del formulario; el formulario se construye con `ConfigurableForm` y resalta los campos modificados en edición. Úsala como referencia.
 
 ## 14. Integración con módulos y analítica predictiva
 
@@ -407,7 +425,7 @@ Debe existir una ejecución automática diaria en el backend para revisar produc
 - Los mocks se implementan dentro de cada service con `import.meta.env.VITE_USE_MOCKS === 'true'` y un delay simulado; no hay MSW. Sigue el patrón de `user.service.ts` y no mezcles datos mock en componentes.
 - Los hooks de TanStack Query definen query keys, `enabled`, invalidación y toasts. Tras una mutación, invalida las keys afectadas. No llames a Axios desde componentes.
 - `query-client.ts`: `staleTime` 30 s, `retry: 1`, sin refetch al enfocar y mutaciones sin retry.
-- El buscador actual ejecuta una query por pulsación (la key incluye `search`); si el volumen crece, añade debounce antes de multiplicar módulos.
+- `DataTable` aplica un debounce de 500 ms a la búsqueda antes de llamar a `onSearchChange`; no añadas otro debounce en la página ni dispares una query por pulsación. La key de TanStack Query debe seguir incluyendo el término de búsqueda.
 - No hay login ni flujo de autenticación en el frontend: solo se lee un token existente. Si implementas sesión, centraliza el guardado/limpieza del token y la redirección.
 - Si una pantalla usa `PageTransition`, la query del listado y la del detalle deben coexistir sin duplicar datos ni provocar refetch innecesario; reutiliza la cache y las query keys del dominio.
 
@@ -415,8 +433,9 @@ Debe existir una ejecución automática diaria en el backend para revisar produc
 
 - Estado del servidor: TanStack Query. Estado global de UI: Zustand + `persist`. Estado efímero de pantalla: `useState`. No introduzcas Redux ni Context para datos remotos.
 - Cada dominio tiene su store solo si necesita estado compartido entre pantallas; no persistas datos que pertenecen al servidor.
-- Conserva filtros, búsqueda, ordenamiento, página y selección al entrar/salir de una vista de detalle. Usa el store del dominio o search params; no los guardes solo en un componente que se desmonta.
-- Formularios: schema Zod en el archivo del formulario, `zodResolver`, validaciones condicionales con `superRefine` cuando dependan del modo edición, y `Form*` de shadcn.
+- Conserva filtros, búsqueda, ordenamiento, página y selección al entrar/salir de una vista de detalle. Usa el store del dominio, el estado de la página o search params; no los guardes solo en un componente que se desmonta.
+- Formularios: schema Zod en el archivo del formulario, `zodResolver`, validaciones condicionales con `superRefine` cuando dependan del modo edición, y `ConfigurableForm` para renderizar campos. Usa `Form*` directamente solo para casos que el formulario configurable no cubra.
+- `DataFilters` es controlado: mantén `values` y `onChange` en la página y traduce esos valores al filtrado o a los parámetros de la query.
 - Normaliza el payload al enviar (por ejemplo `trim()`); no envíes campos vacíos opcionales. En edición, omite la contraseña si no se cambió.
 - Las mutaciones cierran/resetean el formulario en `onSuccess` y los errores se muestran con toast usando `getApiErrorMessage`.
 - Para acciones destructivas, el patrón actual es `window.confirm`; si introduces `AlertDialog`, aplícalo de forma consistente en todos los módulos.
@@ -429,7 +448,7 @@ Antes de modificar la arquitectura o añadir una pantalla:
 
 1. Inspecciona `src/components/transition/PageTransition.tsx`.
 2. Revisa el inventario real de `src/components/ui` y sus props.
-3. Revisa `src/layout/app-layout.tsx`, `app-header.tsx`, `app-sidebar.tsx` y `navigation.ts`.
+3. Revisa `src/layout/app-layout.tsx`, `app-header.tsx`, `floating-dock.tsx` y `navigation.ts`.
 4. Identifica cómo se manejan rutas, estados, stores y queries del dominio.
 5. Revisa los tokens de `src/index.css`.
 6. Determina qué se puede reutilizar antes de crear algo nuevo.
@@ -438,8 +457,9 @@ Reglas:
 
 - Reutiliza componentes, hooks, tipos y patrones existentes antes de crear nuevos.
 - Respeta la estructura y los nombres actuales; no introduzcas una arquitectura paralela.
-- No añadas nuevas funcionalidades al sidebar actual: es una implementación heredada en migración.
-- No crees un segundo sistema de navegación, transición, tema o tablas.
+- No reintroduzcas un sidebar ni una navegación lateral permanente: el sistema es header + dock.
+- No crees un segundo sistema de navegación, transición, tema, tablas, filtros o formularios. Reutiliza `DataTable`, `DataFilters`, `ConfigurableForm` y `PageTransition`.
+- No dupliques las listas de áreas o secciones: edita `src/layout/navigation.ts`.
 - Mantén la lógica de negocio y las llamadas HTTP fuera de los componentes de presentación.
 - Centraliza tipos reutilizables en `*.interface.ts` y evita duplicar contratos entre módulos.
 - No dupliques estilos, tablas, formularios, estados de carga/error ni lógica de toasts.
@@ -460,9 +480,12 @@ Reglas:
 2. Si tocaste rutas, lazy loading, variables de entorno, configuración de Vite/Tailwind o el bundle, ejecuta también `pnpm build`.
 3. Levanta `pnpm dev` y prueba el flujo afectado: navegación, formulario, mutación, estados de carga/error/vacío, tema claro/oscuro y responsive.
 4. Verifica el sistema visual: header compacto, área activa, dock contextual, expansión al hover/foco, navegación por teclado, legibilidad del glassmorphism y adaptación móvil.
-5. Verifica tablas: ancho completo, scroll horizontal, filtros, ordenamiento, paginación y acciones por fila.
-6. Verifica `PageTransition`: que cada vista ocupe el ancho completo, que el scroll sea correcto, que se conserven filtros/búsqueda/orden/página y que se pueda volver al listado.
-7. Verifica formularios contextuales: información original visible, campos modificados resaltados, comparación y acciones guardar/descartar.
-8. Revisa la consola del navegador y que no queden imports sin usar (el build falla por `noUnusedLocals`/`noUnusedParameters`).
-9. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example` en el mismo cambio.
-10. No afirmes que hay tests: no existe suite configurada.
+5. Verifica rutas en español: `/inicio`, `/ventas`, `/inventario`, `/compras`, `/reportes` y `/configuracion`; las rutas legadas deben redirigir.
+6. Verifica tablas: `DataTable` con ancho completo, scroll horizontal, búsqueda debounced, filtros, ordenamiento, paginación y acciones por fila.
+7. Verifica `DataFilters`: selector simple, multi-select, fecha y rango; que el botón de limpiar restablezca el estado.
+8. Verifica `ConfigurableForm`: hints, sugerencias, errores, campos numéricos/máscaras y resaltado de campos modificados.
+9. Verifica `PageTransition`: que cada vista ocupe el ancho completo, que el scroll sea correcto, que se conserven filtros/búsqueda/orden/página y que se pueda volver al listado.
+10. Verifica formularios contextuales: información original visible, campos modificados resaltados, comparación y acciones guardar/descartar.
+11. Revisa la consola del navegador y que no queden imports sin usar (el build falla por `noUnusedLocals`/`noUnusedParameters`).
+12. Si cambió un contrato de API o una variable de entorno, actualiza `README.md` y `.env.example` en el mismo cambio.
+13. No afirmes que hay tests: no existe suite configurada.
