@@ -238,21 +238,7 @@ export const navigationAreas: NavigationArea[] = [
     label: 'Usuarios',
     description: 'Gestión de usuarios y permisos',
     icon: FiUsers,
-    items: [
-      {
-        to: '/usuarios',
-        label: 'Usuarios',
-        description: 'Equipo con acceso al sistema',
-        icon: FiUsers,
-        exact: true,
-      },
-      {
-        to: '/usuarios/roles',
-        label: 'Roles y permisos',
-        description: 'Accesos por rol',
-        icon: FiShield,
-      },
-    ],
+    items: [],
   },
 ]
 
